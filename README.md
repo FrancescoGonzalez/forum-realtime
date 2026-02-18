@@ -1,6 +1,6 @@
 # Forum Real-time
 
-Forum con notifiche in tempo reale usando WebSocket.
+Forum con notifiche in tempo reale usando un architettura PubSub.
 
 ## Installazione
 
