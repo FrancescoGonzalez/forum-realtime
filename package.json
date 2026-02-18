@@ -1,0 +1,20 @@
+{
+  "name": "forum-realtime",
+  "version": "1.0.0",
+  "description": "Forum con notifiche real-time",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mysql2": "^3.17.2",
+    "socket.io": "^4.6.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
