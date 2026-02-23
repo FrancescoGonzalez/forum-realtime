@@ -19,8 +19,7 @@ after the db is up and running, start the server with:
 npm start
 ```
 
-open in: http://localhost:8080
-
+open in: http://localhost:8080 or http://<IP_ADDRESS>:8080
 ## Requirements
 
 ### MySQL Database
