@@ -1,7 +1,7 @@
 {
   "name": "forum-realtime",
   "version": "1.0.0",
-  "description": "Forum con notifiche real-time",
+  "description": "Forum with real-time notifications",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",

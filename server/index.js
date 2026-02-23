@@ -21,7 +21,7 @@ app.use(express.static('public'));
 app.post('/api/auth/login', async (req, res) => {
     const { username } = req.body;
     if (!username || !username.trim()) {
-        return res.status(400).json({ error: 'Username richiesto' });
+        return res.status(400).json({ error: 'Username is required' });
     }
 
     const trimmed = username.trim();
@@ -48,7 +48,7 @@ app.post('/api/topics', async (req, res) => {
 
     const creator = await db.findUserById(creatorId);
     if (!creator) {
-        return res.status(400).json({ error: 'Utente non trovato' });
+        return res.status(400).json({ error: 'User not found' });
     }
 
     const topic = {
@@ -98,7 +98,7 @@ app.post('/api/topics/:topicId/messages', async (req, res) => {
 
     const user = await db.findUserById(userId);
     if (!user) {
-        return res.status(400).json({ error: 'Utente non trovato' });
+        return res.status(400).json({ error: 'User not found' });
     }
 
     const message = {
@@ -120,7 +120,7 @@ app.post('/api/topics/:topicId/messages', async (req, res) => {
             io.emit(`notification-${subscriberId}`, {
                 topicId,
                 topicTitle: topic.title,
-                message: `Nuovo messaggio da ${user.username}`,
+                message: `New message from ${user.username}`,
                 timestamp: Date.now()
             });
         }
@@ -131,14 +131,14 @@ app.post('/api/topics/:topicId/messages', async (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('Client connesso:', socket.id);
+    console.log('Client connected:', socket.id);
 
     socket.on('disconnect', () => {
-        console.log('Client disconnesso:', socket.id);
+        console.log('Client disconnected:', socket.id);
     });
 });
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server in esecuzione su http://0.0.0.0:${PORT}`);
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
 });

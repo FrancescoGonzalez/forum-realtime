@@ -51,11 +51,11 @@ class ForumApp {
       <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm">
           <h1 class="text-2xl font-bold text-indigo-900 mb-2 text-center">Forum Real-time</h1>
-          <p class="text-gray-500 text-sm text-center mb-6">Scegli un username per entrare</p>
+          <p class="text-gray-500 text-sm text-center mb-6">Choose a username to enter</p>
           <input
             id="login-input"
             type="text"
-            placeholder="Il tuo username..."
+            placeholder="Your username..."
             class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             onkeydown="if(event.key==='Enter') app.login()"
             autofocus
@@ -64,7 +64,7 @@ class ForumApp {
             onclick="app.login()"
             class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition"
           >
-            Entra
+            Enter
           </button>
         </div>
       </div>
@@ -109,7 +109,7 @@ class ForumApp {
     }
 
     async createTopic() {
-        const title = prompt('Titolo del topic:');
+        const title = prompt('Topic title:');
         if (!title) return;
 
         await api.createTopic(title, this.currentUser);
@@ -171,13 +171,13 @@ class ForumApp {
                 onclick="app.logout()"
                 class="px-3 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
               >
-                Esci
+                Logout
               </button>
               <button
                 onclick="app.createTopic()"
                 class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
-                + Nuovo Topic
+                + New Topic
               </button>
             </div>
           </div>
@@ -207,9 +207,9 @@ class ForumApp {
         );
 
         container.innerHTML = `
-          <h2 class="text-xl font-bold mb-4">I Miei Topic</h2>
+          <h2 class="text-xl font-bold mb-4">My Topics</h2>
           ${this.myTopics.length === 0 ?
-            '<p class="text-gray-500 text-sm">Non sei iscritto a nessun topic</p>' :
+            '<p class="text-gray-500 text-sm">You are not subscribed to any topic</p>' :
             this.myTopics.map(t => {
                 const unread = this.unreadCounts[t.id] || 0;
                 const isSelected = this.selectedTopic?.id === t.id;
@@ -218,24 +218,24 @@ class ForumApp {
                 <div onclick="app.selectTopic(${JSON.stringify(t).replace(/"/g, '&quot;')})" class="flex items-center justify-between">
                   <div>
                     <h3 class="font-semibold">${t.title}</h3>
-                    <p class="text-xs text-gray-500">da ${t.creatorName}</p>
+                    <p class="text-xs text-gray-500">by ${t.creatorName}</p>
                   </div>
                   ${unread > 0 ? `<span class="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">${unread}</span>` : ''}
                 </div>
                 <button onclick="app.unsubscribe('${t.id}')" class="text-red-500 text-xs mt-2">
-                  Disiscriviti
+                  Unsubscribe
                 </button>
               </div>
             `}).join('')
           }
           ${availableTopics.length > 0 ? `
-            <h3 class="text-lg font-semibold mt-6 mb-3">Topic Disponibili</h3>
+            <h3 class="text-lg font-semibold mt-6 mb-3">Available Topics</h3>
             ${availableTopics.map(t => `
               <div class="p-3 mb-2 rounded-lg border-2 border-gray-200">
                 <h3 class="font-semibold">${t.title}</h3>
-                <p class="text-xs text-gray-500">da ${t.creatorName}</p>
+                <p class="text-xs text-gray-500">by ${t.creatorName}</p>
                 <button onclick="app.subscribe('${t.id}')" class="text-green-500 text-xs mt-2">
-                  Iscriviti
+                  Subscribe
                 </button>
               </div>
             `).join('')}
@@ -255,12 +255,12 @@ class ForumApp {
                 <input
                   id="message-input"
                   type="text"
-                  placeholder="Scrivi un messaggio..."
+                  placeholder="Write a message..."
                   class="flex-1 px-4 py-2 border rounded-lg"
                   onkeydown="if(event.key==='Enter') app.sendMessage()"
                 />
                 <button onclick="app.sendMessage()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg">
-                  Invia
+                  Send
                 </button>
               </div>
             `;
@@ -268,7 +268,7 @@ class ForumApp {
         } else {
             container.innerHTML = `
               <div class="flex-1 flex items-center justify-center text-gray-400">
-                <p>Seleziona un topic per visualizzare i messaggi</p>
+                <p>Select a topic to view messages</p>
               </div>
             `;
         }
