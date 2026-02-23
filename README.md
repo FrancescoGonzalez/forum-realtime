@@ -7,7 +7,6 @@ Real time forum with a Pub/Sub architecture
 ```bash
 npm install
 ```
-
 ## Avvio
 
 ```bash
