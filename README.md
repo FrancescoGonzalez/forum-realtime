@@ -1,6 +1,6 @@
 # Forum Real-time
 
-Forum con notifiche in tempo reale usando WebSocket.
+Real time forum with a Pub/Sub architecture
 
 ## Installazione
 
@@ -14,7 +14,7 @@ npm install
 npm start
 ```
 
-Apri il browser su: http://localhost:8080
+open in: http://localhost:8080
 
 ## Requisiti
 
