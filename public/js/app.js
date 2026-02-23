@@ -6,7 +6,6 @@ class ForumApp {
         this.myTopics = [];
         this.selectedTopic = null;
         this.messages = [];
-        this.unreadCounts = {};
         this.socket = io(window.location.origin);
         this._messageTopicId = null;
 
@@ -28,15 +27,20 @@ class ForumApp {
         const name = input.value.trim();
         if (!name) return;
 
-        const user = await api.login(name);
-        this.currentUser = user.id;
-        this.username = user.username;
-        sessionStorage.setItem('userId', user.id);
-        sessionStorage.setItem('username', user.username);
+        try {
+            const user = await api.login(name);
+            this.currentUser = user.id;
+            this.username = user.username;
+            sessionStorage.setItem('userId', user.id);
+            sessionStorage.setItem('username', user.username);
 
-        this.setupWebSocket();
-        await this.loadTopics();
-        this.render();
+            this.setupWebSocket();
+            await this.loadTopics();
+            this.render();
+        } catch (error) {
+            console.error('Login failed:', error);
+            alert('Login failed. Please try again.');
+        }
     }
 
     logout() {
@@ -72,13 +76,6 @@ class ForumApp {
     }
 
     setupWebSocket() {
-        this.socket.on(`notification-${this.currentUser}`, (notification) => {
-            const topicId = notification.topicId;
-            if (this.selectedTopic?.id !== topicId) {
-                this.unreadCounts[topicId] = (this.unreadCounts[topicId] || 0) + 1;
-                this.renderSidebar();
-            }
-        });
 
         this.socket.on('topic-created', () => {
             this.loadTopics();
@@ -103,43 +100,66 @@ class ForumApp {
     }
 
     async loadTopics() {
-        this.topics = await api.getAllTopics();
-        this.myTopics = await api.getUserSubscriptions(this.currentUser);
-        this.renderSidebar();
+        try {
+            this.topics = await api.getAllTopics();
+            this.myTopics = await api.getUserSubscriptions(this.currentUser);
+            this.renderSidebar();
+        } catch (error) {
+            console.error('Failed to load topics:', error);
+        }
     }
 
     async createTopic() {
         const title = prompt('Topic title:');
         if (!title) return;
 
-        await api.createTopic(title, this.currentUser);
-        await this.loadTopics();
+        try {
+            await api.createTopic(title, this.currentUser);
+            await this.loadTopics();
+        } catch (error) {
+            console.error('Failed to create topic:', error);
+            alert('Failed to create topic. Please try again.');
+        }
     }
 
     async subscribe(topicId) {
-        await api.subscribe(topicId, this.currentUser);
-        await this.loadTopics();
+        try {
+            await api.subscribe(topicId, this.currentUser);
+            await this.loadTopics();
+        } catch (error) {
+            console.error('Failed to subscribe:', error);
+            alert('Failed to subscribe. Please try again.');
+        }
     }
 
     async unsubscribe(topicId) {
-        await api.unsubscribe(topicId, this.currentUser);
-        if (this.selectedTopic?.id === topicId) {
-            this.selectedTopic = null;
-            this.messages = [];
-            this._messageTopicId = null;
-            this.socket.off(`message-${topicId}`);
-            this.renderChat();
+        try {
+            await api.unsubscribe(topicId, this.currentUser);
+            if (this.selectedTopic?.id === topicId) {
+                this.selectedTopic = null;
+                this.messages = [];
+                this._messageTopicId = null;
+                this.socket.off(`message-${topicId}`);
+                this.renderChat();
+            }
+            await this.loadTopics();
+        } catch (error) {
+            console.error('Failed to unsubscribe:', error);
+            alert('Failed to unsubscribe. Please try again.');
         }
-        await this.loadTopics();
     }
 
     async selectTopic(topic) {
-        this.selectedTopic = topic;
-        this.unreadCounts[topic.id] = 0;
-        this.messages = await api.getMessages(topic.id);
-        this.listenToTopicMessages(topic.id);
-        this.renderChat();
-        this.renderSidebar();
+        try {
+            this.selectedTopic = topic;
+            this.messages = await api.getMessages(topic.id);
+            this.listenToTopicMessages(topic.id);
+            this.renderChat();
+            this.renderSidebar();
+        } catch (error) {
+            console.error('Failed to select topic:', error);
+            alert('Failed to load topic. Please try again.');
+        }
     }
 
     async sendMessage() {
@@ -148,13 +168,18 @@ class ForumApp {
 
         if (!content || !this.selectedTopic) return;
 
-        await api.sendMessage(
-            this.selectedTopic.id,
-            this.currentUser,
-            content
-        );
+        try {
+            await api.sendMessage(
+                this.selectedTopic.id,
+                this.currentUser,
+                content
+            );
 
-        input.value = '';
+            input.value = '';
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            alert('Failed to send message. Please try again.');
+        }
     }
 
     render() {
@@ -211,7 +236,6 @@ class ForumApp {
           ${this.myTopics.length === 0 ?
             '<p class="text-gray-500 text-sm">You are not subscribed to any topic</p>' :
             this.myTopics.map(t => {
-                const unread = this.unreadCounts[t.id] || 0;
                 const isSelected = this.selectedTopic?.id === t.id;
                 return `
               <div class="p-3 mb-2 rounded-lg border-2 ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'} cursor-pointer">
@@ -220,7 +244,6 @@ class ForumApp {
                     <h3 class="font-semibold">${t.title}</h3>
                     <p class="text-xs text-gray-500">by ${t.creatorName}</p>
                   </div>
-                  ${unread > 0 ? `<span class="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">${unread}</span>` : ''}
                 </div>
                 <button onclick="app.unsubscribe('${t.id}')" class="text-red-500 text-xs mt-2">
                   Unsubscribe

@@ -112,6 +112,26 @@ class Database {
     }
 }
 
+async function waitForDatabase(maxRetries = 10, delay = 2000) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const connection = await pool.getConnection();
+            await connection.ping();
+            connection.release();
+            console.log('Database connected successfully');
+            return;
+        } catch (error) {
+            if (i < maxRetries - 1) {
+                console.log(`Database connection attempt ${i + 1} failed, retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                console.error('Failed to connect to database after max retries');
+                throw error;
+            }
+        }
+    }
+}
+
 const db = new Database();
 db.waitForDatabase = waitForDatabase;
 module.exports = db;

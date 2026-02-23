@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*",
+        origin: process.env.CORS_ORIGIN || "*",
         methods: ["GET", "POST"]
     }
 });
@@ -112,37 +112,16 @@ app.post('/api/topics/:topicId/messages', async (req, res) => {
 
     await db.createMessage(message);
 
-    const subscribers = await db.getSubscribers(topicId);
-    const topic = await db.getTopic(topicId);
-
-    subscribers.forEach(subscriberId => {
-        if (subscriberId !== userId) {
-            io.emit(`notification-${subscriberId}`, {
-                topicId,
-                topicTitle: topic.title,
-                message: `New message from ${user.username}`,
-                timestamp: Date.now()
-            });
-        }
-    });
-
     io.emit(`message-${topicId}`, message);
     res.json(message);
 });
 
-io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
-    });
-});
 
 const PORT = process.env.PORT || 8080;
 
 (async () => {
     await db.waitForDatabase();
-    server.listen(PORT, 'localhost', () => {
-        console.log(`Server running on http://localhost:${PORT}`);
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on http://0.0.0.0:${PORT}`);
     });
 })();
